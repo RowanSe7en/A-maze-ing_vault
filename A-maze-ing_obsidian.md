@@ -279,3 +279,309 @@ It is **rarely used to generate mazes**, because it does not naturally create th
 | BFS                         | Maze solving / shortest path | expands outward in layers  |
 
 ---
+# MazeGen Python Package - README
+
+## 1️⃣ Recommended Setup
+
+* **Always use a virtual environment (`venv`)** for development and testing.
+* This keeps the system Python clean and ensures your package installation behaves like a real pip installation.
+
+```bash
+# Creates an isolated Python environment named "venv" in the current directory.
+# This prevents package conflicts with your system Python or other projects.
+python -m venv venv
+
+# Activates the venv on Linux/macOS — all pip/python commands now run inside this environment.
+source venv/bin/activate
+
+# Activates the venv on Windows — same effect, different shell syntax.
+venv\Scripts\activate
+````
+
+---
+
+## 2️⃣ Configure `pyproject.toml`
+
+This file tells Python how to **build your package**.
+
+Example for `mazegen`:
+
+```toml
+[project]
+name = "mazegen"
+version = "0.1.0"
+description = "Maze generation tools"
+authors = [{name = "Your Name", email = "you@example.com"}]
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mazegen*"]
+```
+
+**Explanation:**
+
+- `[project]` → general metadata about your package.
+- `[build-system]` → specifies build tools and the backend (`setuptools.build_meta`) compatible with modern Python.
+- `[tool.setuptools.packages.find]` → tells setuptools which directories contain your package modules.
+
+---
+
+## 3️⃣ Build the package
+
+From your `project/` folder with venv activated:
+
+```bash
+# Ensures you have the latest versions of the core build tools,
+# avoiding bugs or compatibility issues with older versions.
+pip install --upgrade setuptools wheel build
+
+# Reads pyproject.toml and produces both a .whl and a .tar.gz artifact inside dist/.
+python -m build
+```
+
+- Output:
+
+```
+dist/
+├─ mazegen-0.1.0-py3-none-any.whl
+└─ mazegen-0.1.0.tar.gz
+```
+
+- `.whl` → faster installation
+- `.tar.gz` → source distribution
+
+---
+
+## 4️⃣ Install the package
+
+```bash
+# Installs the pre-built wheel directly into the active venv's site-packages.
+# Using the .whl is faster than the .tar.gz because it skips the build step.
+pip install dist/mazegen-0.1.0-py3-none-any.whl
+```
+
+- Once installed, your package **is now part of the venv's site-packages**.
+- Check with:
+
+```bash
+# Lists all packages currently installed in the active venv,
+# confirming mazegen appears with the correct version.
+pip list
+```
+
+Example output:
+
+```
+Package         Version
+--------------- -------
+build           1.4.2
+mazegen         1.0.0
+packaging       26.0
+pip             25.2
+pyproject_hooks 1.2.0
+setuptools      82.0.1
+wheel           0.46.3
+```
+
+---
+
+## 5️⃣ Run your main script
+
+```bash
+# Executes the "run" target defined in your Makefile.
+# Python resolves the mazegen import from site-packages, not the local source folder.
+make run
+```
+
+✅ Python will **import `mazegen` from the installed wheel**, not the local source folder.
+
+---
+
+## 6️⃣ Why removing `mazegen/` or `.tar.gz` is safe
+
+- Once installed via pip, Python uses the **site-packages copy of the package in the venv**.
+- You can delete the `mazegen/` source folder or the `dist/` files — your scripts will continue to work.
+- This mimics real-world usage where users **never have the source folder**, only the installed package.
+
+---
+
+## 7️⃣ Notes
+
+- Always test **installation inside a venv** to ensure the package behaves like a pip-installed module.
+- Keep the source folder (`mazegen/`) only for development.
+- Update the version in `pyproject.toml` each time you rebuild to avoid pip caching issues.
+
+---
+# ANSI
+
+**ANSI** usually refers to the **ANSI escape codes** used in terminals, but the term originally comes from the organization **American National Standards Institute**.
+
+Let’s separate the two meanings clearly:
+
+---
+
+## 1) ANSI as an organization (the origin)
+
+The American National Standards Institute defines technical standards in the US.  
+One of the many standards that became widely adopted was a terminal control standard called:
+
+**ANSI X3.64 (1979)** → terminal control sequences.
+
+This is why terminal color/control sequences are called _ANSI codes_.
+
+---
+
+## 2) ANSI in programming & terminals (what people usually mean)
+
+When developers say **“ANSI”**, they almost always mean:
+
+👉 **ANSI escape sequences**
+
+These are special character sequences that control terminal behavior:
+
+- colors
+    
+- cursor movement
+    
+- screen clearing
+    
+- bold/underline text
+    
+- hiding cursor
+    
+- etc.
+    
+
+They start with the **ESC character** (`\033` or `\x1b`) followed by a command.
+
+General format:
+
+```
+ESC [ parameters command
+```
+
+Example:
+
+```
+\033[31mHello\033[0m
+```
+
+---
+
+## 3) Why they exist
+
+Terminals are text-only devices. ANSI codes let programs **control how text appears** without graphics.
+
+They are used everywhere:
+
+- Linux terminals
+    
+- macOS terminal
+    
+- Windows PowerShell (modern versions)
+    
+- CLI tools (git, pip, npm, etc.)
+    
+- ASCII games and renderers (like your maze project 👀)
+    
+
+---
+
+## 4) Common ANSI color codes
+
+### Text colors
+
+|Color|Code|
+|---|---|
+|Black|`30`|
+|Red|`31`|
+|Green|`32`|
+|Yellow|`33`|
+|Blue|`34`|
+|Magenta|`35`|
+|Cyan|`36`|
+|White|`37`|
+
+Example:
+
+```
+print("\033[32mSuccess!\033[0m")
+```
+
+→ prints green text.
+
+---
+
+### Styles
+
+|Style|Code|
+|---|---|
+|Bold|`1`|
+|Dim|`2`|
+|Italic|`3`|
+|Underline|`4`|
+|Blink|`5`|
+|Reverse colors|`7`|
+|Reset|`0`|
+
+Example:
+
+```
+\033[1;31mBold Red\033[0m
+```
+
+---
+
+## 5) Cursor & screen control (super useful)
+
+Clear screen:
+
+```
+\033[2J
+```
+
+Move cursor to top-left:
+
+```
+\033[H
+```
+
+Hide cursor:
+
+```
+\033[?25l
+```
+
+Show cursor:
+
+```
+\033[?25h
+```
+
+This is how terminal animations and games work.
+
+---
+
+## 6) Why you see it in your project
+
+Your maze renderer uses ANSI to:
+
+- color walls and paths
+    
+- redraw the maze
+    
+- animate solving
+    
+- apply themes
+    
+
+Without ANSI → terminal apps would be plain monochrome text.
+
+---
+
+If you want, I can give you a compact cheat sheet tailored for your maze renderer.
